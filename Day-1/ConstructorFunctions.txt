@@ -1,0 +1,21 @@
+Constructor Functions
+
+1. invoked with the "new" keyword
+2. "this" refer to a new object
+3. the default return value is "this"
+
+function Employee(id, name, salary){
+  if (this.constructor !== arguments.callee)
+     return new Employee(id,name,salary);
+  this.id = id;
+  this.name = name;
+  this.salary = salary;
+}
+
+Modify the above constructor function to exhibit the following behavior:
+
+1. Convert all the members to accessors with the following validations
+	a. id should be readonly
+	b. name cannot be assigned an empty string
+	c. salary cannot be assigned a value less than the current one
+
