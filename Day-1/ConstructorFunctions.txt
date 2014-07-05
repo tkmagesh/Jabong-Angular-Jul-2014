@@ -19,3 +19,36 @@ Modify the above constructor function to exhibit the following behavior:
 	b. name cannot be assigned an empty string
 	c. salary cannot be assigned a value less than the current one
 
+
+function Employee(id,name,salary){
+	var _id = 0, 
+		_name = "", 
+		_salary = 0;
+	this.id = function(val){
+		if (typeof val === "undefined") return _id;
+	};
+	this.name = function(val){
+		if (typeof val === "undefined") return _name;
+		if (val !== "") _name = val;
+	};
+	this.salary = function(val){
+		if (typeof val === "undefined") return _salary;
+		if (_salary < val) _salary = val;
+	};
+	_id = id;
+	this.name(name);
+	this.salary(salary);
+}
+
+function SalaryCalculator(basic,hra,da,tax){
+	this.basic = basic;
+	this.hra = hra;
+	this.da = da;
+	this.tax = tax;
+	this.salary = 0;
+	
+	this.calculate = function(){
+		var gross = this.basic + this.hra + this.da ;
+		this.salary = ((100-this.tax)/100) * gross
+	}
+}
