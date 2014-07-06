@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Angular Introduction</title>
+	<script src="angular.js"></script>
+	<script>
+		function greetController($scope){
+			$scope.firstName = "Magesh";
+			$scope.lastName = "Kuppan";
+			$scope.greet = function(){
+				$scope.greetMsg = "Hi " + $scope.firstName + " " + $scope.lastName;
+			}
+		}
+	</script>
+
+
+</head>
+<body data-ng-app data-ng-controller="greetController">
+	<input type="text" data-ng-model="firstName" >
+	<input type="text" data-ng-model="lastName" >
+	<input type="button" value="Display" data-ng-click="greet()">
+	<div>{{greetMsg}}</div>
+</body>
+</html>
+
+<!-- 
+Directive
+ -->

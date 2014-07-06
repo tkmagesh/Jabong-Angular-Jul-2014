@@ -45,7 +45,11 @@
 		function triggerSubscribers(attrName){
 			var subscribers = subscriptions[attrName];
 			for(var i=0;i<subscribers.length;i++)
-				subscribers[i].call(that,data[attrName]);
+				setTimeout((function(index){
+					return function(){
+					subscribers[index].call(that,data[attrName]);
+				}
+			})(i));
 		}
 
 		this.calculate = function(){
