@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Task Manager</title>
+	<style>
+	.completed {
+		color : red;
+		text-decoration: line-through;
+		font-style : italic;
+	}
+	</style>
+	<script src="angular.js"></script>
+	<script>
+	function taskController($scope){
+		$scope.tasks = [];
+		$scope.addTask = function(newTasks){
+			newTasks.forEach(function(t){
+				$scope.tasks.push({name : t, isCompleted : false});	
+			});
+			
+		};
+		$scope.removeCompleted = function(){
+			for(var i=$scope.tasks.length-1;i>=0;i--)
+				if ($scope.tasks[i].isCompleted)
+					$scope.tasks.splice(i,1);
+		}
+		$scope.toggle = function(task){
+			task.isCompleted = !task.isCompleted;
+		}
+	}
+	</script>
+</head>
+<body  data-ng-app>
+	<h1>Task Manager</h1>
+	<hr>
+	<div class="content" data-ng-controller="taskController">
+		<span>Task :</span>
+		<input type="text" data-ng-list data-ng-model="newTasks">
+		<input type="button" value="Add Task" data-ng-click="addTask(newTasks)">
+		<input type="button" value="Remove Completed" data-ng-click="removeCompleted()">
+		<ul id="ulTaskList">
+			<li data-ng-repeat="task in tasks" data-ng-click="toggle(task)" data-ng-class="{completed : task.isCompleted}">{{task.name}}</li>
+		</ul>
+		<div>{{tasks}}</div>
+	</div>
+</body>
+</html>
