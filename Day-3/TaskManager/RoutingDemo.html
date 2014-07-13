@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Angular - Routing Demo</title>
+	<script src="angular.js"></script>
+	<script src="angular-route.js"></script>
+	<script>
+		angular
+			.module('myApp',['ngRoute'])
+			.config(function($routeProvider,$locationProvider){
+				$routeProvider
+					.when('/Products/:productCount',{
+						templateUrl : "products.html",
+						controller : "productsController"
+					})
+					.when('/Customers',{
+						templateUrl : 'customers.html',
+						controller : "customersController"
+					})
+					.otherwise({
+						redirectTo : '/Products/0'
+					});
+
+			})
+			.controller('productsController', function($scope, $routeParams){
+				console.log($routeParams);
+				$scope.productsCount = $routeParams.productCount;
+			})
+			.controller('customersController',function($scope){
+				$scope.customersCount = 20;
+			});
+
+	</script>
+</head>
+<body ng-app="myApp">
+	<ng-view></ng-view>
+</body>
+</html>
