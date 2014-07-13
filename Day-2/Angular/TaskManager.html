@@ -12,16 +12,30 @@
 	</style>
 	<script src="angular.js"></script>
 	<script>
-	angular.module("myApp",[])
+	angular.module("myUtils",[])
+		.filter('trimTaskName', function(){
+			return function(taskName, limitLength){
+				taskName = taskName || "";
+				return taskName.length > limitLength ? taskName.substr(0,limitLength) + "..." : taskName;
+			}
+		});
+	angular.module("myApp",["myUtils"])
 		.factory('taskService',function(){
-			var tasks = [{"name":"Task - 1","isCompleted":false,"category":"personal"},{"name":"Task - 2","isCompleted":false,"category":"personal"},{"name":"Task - 3","isCompleted":false,"category":"personal"},{"name":"Task - 11","isCompleted":false,"category":"official"},{"name":"Task - 12","isCompleted":true,"category":"official"},{"name":"Task - 13","isCompleted":false,"category":"official"},{"name":"Task - 21","isCompleted":false,"category":"personal"},{"name":"Task - Secret","isCompleted":false,"category":"secret"},{"name":"Task - 23","isCompleted":false,"category":"personal"}];
+			var tasks = [];
 
 			return {
 				getAll : function(){
-					return tasks.slice(0,tasks.length);
+					return tasks;
 				},
-				add : function(task){
-					tasks.push(task);
+				add : function(taskName, category){
+					tasks.push({
+						name : taskName, 
+						isCompleted : false, 
+						category : category,
+						toggleCompletion : function(){
+							this.isCompleted = !this.isCompleted
+						}
+					});
 				},
 				removeCompleted : function(){
 					for(var i=tasks.length-1;i>=0;i--)
@@ -37,13 +51,12 @@
 
 			}
 		})
-		.controller("taskController", function taskController($scope, taskService){
+		.controller("taskController", ['$scope','taskService',function taskController($scope, taskService){
 			$scope.tasks = taskService.getAll();
 			$scope.addTask = function(newTasks, category){
-				newTasks.forEach(function(t){
-					taskService.add({name : t, isCompleted : false, category : category});	
+				newTasks.forEach(function(taskName){
+					taskService.add(taskName,category);	
 				});
-				
 			};
 			$scope.removeCompleted = function(){
 				taskService.removeCompleted();
@@ -57,15 +70,16 @@
 			$scope.getTotalCount = function(){
 				return taskService.totalCount($scope.taskCategory);
 			}
-		});
+		}]);
 	</script>
 </head>
-<body  data-ng-app="myApp">
+<body  >
 	<h1>Task Manager</h1>
 	<hr>
-	<div class="content" data-ng-controller="taskController">
+	<div data-ng-app="myApp" class="content" ng-controller="taskController">
+		<input type="text" data-ng-init="taskNameLength=10" data-ng-model="taskNameLength"> <br>
 		<span>Task :</span>
-		<input type="text" data-ng-list data-ng-model="newTasks">
+		<input type="text" data-ng-list ng-model="newTasks">
 		<select data-ng-model="taskCategory">
 			<option value="personal">Personal</option>
 			<option value="official">Official</option>
@@ -74,7 +88,7 @@
 		<input type="button" value="Remove Completed" data-ng-click="removeCompleted()">
 		<hr>
 		<ul id="ulTaskList">
-			<li data-ng-repeat="task in tasks | filter:taskCategory" data-ng-click="toggle(task)" data-ng-class="{completed : task.isCompleted}">{{task.name }}</li>
+			<li data-ng-repeat="task in tasks | filter:taskCategory" data-ng-click="task.toggleCompletion()" data-ng-class="{completed : task.isCompleted}">{{task.name | trimTaskName : taskNameLength }}</li>
 		</ul>
 		<div>#of Completed Tasks : {{getCompletedCount()}}</div>
 		<div>Total # of Tasks : {{getTotalCount()}}</div>

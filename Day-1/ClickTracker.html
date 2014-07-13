@@ -4,17 +4,17 @@
 	<meta charset="UTF-8">
 	<title>Click Tracker</title>
 	<script type="text/javascript">
-		(function(){
+		(function(win,doc){
 			var counter = 0;
 			function onBtnTrackClick(){
 				counter = counter + 1;
-				document.getElementById("divMessage").innerHTML = counter;
+				doc.getElementById("divMessage").innerHTML = counter;
 			}
 			function init(){
-				document.getElementById("btnTrack").addEventListener("click",onBtnTrackClick);
+				doc.getElementById("btnTrack").addEventListener("click",onBtnTrackClick);
 			}
-			window.addEventListener("DOMContentLoaded",init);
-		})();
+			win.addEventListener("DOMContentLoaded",init);
+		})(window,document);
 		//myApp();
 	</script>
 </head>
