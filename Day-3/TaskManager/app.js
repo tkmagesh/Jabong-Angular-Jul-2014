@@ -13,8 +13,6 @@ String.prototype.endsWith = function(extn){
    return this.substr(this.length - extn.length, extn.length) === extn;
 }
 
-
-
 http.createServer(function(req,res){
 	var pathName = url.parse(req.url).pathname;
 	var resourceName = path.join(__dirname, pathName);
@@ -22,12 +20,9 @@ http.createServer(function(req,res){
 		return resourceName.endsWith(ext);
 	});
 	if (isFile){
-		if (fs.existsSync(resourceName)){
+		fs.exists(resourceName, function(){
 			fs.createReadStream(resourceName, {encoding : "utf8"}).pipe(res);
-		} else {
-			res.statusCode = 404;
-			res.end();
-		}	
+		});	
 	} else {
 		if (pathName === "/tasks"){
 			res.write(JSON.stringify(tasks));
