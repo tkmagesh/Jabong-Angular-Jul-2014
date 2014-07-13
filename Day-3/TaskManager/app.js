@@ -25,8 +25,10 @@ http.createServer(function(req,res){
 		});	
 	} else {
 		if (pathName === "/tasks"){
-			res.write(JSON.stringify(tasks));
-			res.end();
+			setTimeout(function(){
+				res.write(JSON.stringify(tasks));
+				res.end();
+			},10000);
 		}
 	}
 	

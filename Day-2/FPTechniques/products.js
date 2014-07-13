@@ -221,4 +221,7 @@ after (underscore - Functions)
 compose (underscore - Functions)
 
 Try solving the problems with using "for"
+
+Write your own Promise Implementation
+
 */

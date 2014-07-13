@@ -56,8 +56,12 @@
 
 			}
 		}])
-		.controller("taskController", ['$scope','taskService',function taskController($scope, taskService){
-			$scope.tasks = taskService.getAll();
+		.controller("taskController", ['$scope','$http', 'taskService',function taskController($scope, $http, taskService){
+			$http({method : "get", url : "/tasks"})
+				.success(function(tasks){
+					$scope.tasks = tasks;		
+				});
+		
 			$scope.addTask = function(newTasks, category){
 				newTasks.forEach(function(taskName){
 					taskService.add(taskName,category);	
