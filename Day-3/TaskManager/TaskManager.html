@@ -22,6 +22,7 @@
 	angular.module("myApp",["myUtils"])
 		.factory('taskModel', function(){
 			function Task(defaults){
+				this.id = defaults.id || -1;
 				this.name = defaults.name || "";
 				this.isCompleted = defaults.isCompleted || false;
 				this.category = defaults.category || "Personal";
@@ -31,16 +32,29 @@
 			}
 			return Task;
 		})
-		.factory('taskService',['taskModel', function(Task){
-			
+		.factory('taskService',['taskModel', '$http','$q', function(Task,$http,$q){
 			var tasks = [];
-
 			return {
 				getAll : function(){
-					return tasks;
+					var deferred = $q.defer();
+					var $httpPromise = $http({method : "get", url : "/tasks"});
+					$httpPromise.success(function(data){
+						var result = [];
+						data.forEach(function(obj){
+							result.push(new Task(obj));
+						});
+						tasks = result;
+						deferred.resolve(result);
+					});
+					return deferred.promise;
 				},
 				add : function(taskName, category){
-					tasks.push(new Task({name : taskName, category : category}));
+					var deferred = $q.defer();
+					var $httpPromise = $http.post("/tasks", {name : taskName, category : category});
+					$httpPromise.success(function(data){
+						deferred.resolve(new Task(data));
+					});
+					return deferred.promise;
 				},
 				removeCompleted : function(){
 					for(var i=tasks.length-1;i>=0;i--)
@@ -48,7 +62,11 @@
 							tasks.splice(i,1);
 				},
 				completedCount : function(category){
-					return tasks.filter(function (t){ return t.isCompleted && t.category === category;}).length;
+					console.log("CompletedCount triggered");
+					return tasks.filter(function (t){ 
+						console.log(t,category);
+						return t.isCompleted && t.category === category;
+					}).length;
 				},
 				totalCount : function(category){
 					return tasks.filter(function (t){ return t.category === category;}).length;
@@ -56,15 +74,18 @@
 
 			}
 		}])
-		.controller("taskController", ['$scope','$http', 'taskService',function taskController($scope, $http, taskService){
-			$http({method : "get", url : "/tasks"})
-				.success(function(tasks){
-					$scope.tasks = tasks;		
-				});
-		
+		.controller("taskController", ['$scope','$http', 'taskService','taskModel',function taskController($scope, $http, taskService,Task){
+			$scope.tasks = [];
+			
+			taskService.getAll().then(function(tasks){
+				$scope.tasks = tasks;
+			});
+			
 			$scope.addTask = function(newTasks, category){
 				newTasks.forEach(function(taskName){
-					taskService.add(taskName,category);	
+					taskService.add(taskName,category).then(function(nt){
+						$scope.tasks.push(nt);
+					});	
 				});
 			};
 			$scope.removeCompleted = function(){
@@ -74,7 +95,9 @@
 				task.isCompleted = !task.isCompleted;
 			}
 			$scope.getCompletedCount = function(){
-				return taskService.completedCount($scope.taskCategory);
+				var count = taskService.completedCount($scope.taskCategory);
+				console.log("Completed Count = ", count);
+				return count;
 			}
 			$scope.getTotalCount = function(){
 				return taskService.totalCount($scope.taskCategory);
@@ -90,14 +113,14 @@
 		<span>Task :</span>
 		<input type="text" data-ng-list ng-model="newTasks">
 		<select data-ng-model="taskCategory">
-			<option value="personal">Personal</option>
-			<option value="official">Official</option>
+			<option value="Personal">Personal</option>
+			<option value="Official">Official</option>
 		</select>
 		<input type="button" value="Add Task" data-ng-click="addTask(newTasks, taskCategory)">
 		<input type="button" value="Remove Completed" data-ng-click="removeCompleted()">
 		<hr>
 		<ul id="ulTaskList">
-			<li data-ng-repeat="task in tasks | filter:taskCategory" data-ng-click="task.toggleCompletion()" data-ng-class="{completed : task.isCompleted}">{{task.name | trimTaskName : taskNameLength }}</li>
+			<li data-ng-repeat="task in tasks | filter:taskCategory" data-ng-click="task.toggleCompletion()" data-ng-class="{completed : task.isCompleted}">{{task.name | trimTaskName : taskNameLength }} - ({{task.id}})</li>
 		</ul>
 		<div>#of Completed Tasks : {{getCompletedCount()}}</div>
 		<div>Total # of Tasks : {{getTotalCount()}}</div>
